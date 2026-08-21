@@ -116,6 +116,18 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   font-size:.85rem;color:var(--muted);background:var(--surface);
   border-left:2px solid var(--rule);padding:.6rem .8rem;margin:0 0 .8rem;
 }
+@media (max-width:620px){
+  /* iOS Safari zooms the page when focusing an input smaller than 16px */
+  input[type="password"],input[type="text"],textarea{font-size:16px}
+  /* comfortable thumb targets */
+  .thread-toggle{min-height:48px}
+  button.btn{padding:.7rem 1.15rem}
+  /* stack the name field and post button instead of cramming them side by side */
+  .thread-form{max-width:none}
+  .thread-form .row2{flex-direction:column;align-items:stretch;gap:.5rem}
+  .thread-form .row2 input{max-width:none;width:100%}
+  .bar{padding:.5rem .95rem;gap:.5rem}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.bar,.thread-toggle,.thread-form{display:none!important}.thread-body{display:block!important}}
 </style>

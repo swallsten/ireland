@@ -109,6 +109,18 @@ h1 em{font-style:italic;font-weight:400;color:var(--accent-ink)}
 .gday .d{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
 .gday .t{font-family:var(--f-display);font-size:1rem;line-height:1.15;font-weight:600;letter-spacing:-.01em}
 .gday .b{font-size:.72rem;color:var(--muted)}
+/* glance blocks are links to their day */
+a.gday{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent;
+  transition:background .12s ease;cursor:pointer}
+a.gday .t{text-decoration:underline;text-decoration-thickness:1px;
+  text-decoration-color:var(--rule);text-underline-offset:3px}
+a.gday:hover{background:var(--surface-2)}
+a.gday:hover .t{text-decoration-color:var(--accent)}
+a.gday:active{background:var(--rule-soft)}
+a.gday:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+/* keep the sticky top bar from covering the heading you jump to */
+section.day{scroll-margin-top:4.5rem}
+html{scroll-behavior:smooth}
 
 /* ---- load meter ---- */
 .load{display:inline-flex;align-items:center;gap:.32rem;vertical-align:middle}
@@ -247,8 +259,12 @@ ul.plain li b{color:var(--ink);font-weight:600}
   .row .when{padding-top:0;font-size:.74rem;letter-spacing:.05em;color:var(--muted)}
   .row.leg .when{color:var(--road-ink)}
   .glance{grid-template-columns:repeat(2,1fr)}
+  a.gday{min-height:60px;padding:.8rem .7rem .85rem;justify-content:center}
+  a.gday .t{font-size:1.02rem}
+  section.day{scroll-margin-top:6rem}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}}
 @media print{
   body{background:#fff;color:#000}
   .day{break-inside:avoid}
@@ -388,6 +404,18 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 .thread-off{
   font-size:.85rem;color:var(--muted);background:var(--surface);
   border-left:2px solid var(--rule);padding:.6rem .8rem;margin:0 0 .8rem;
+}
+@media (max-width:620px){
+  /* iOS Safari zooms the page when focusing an input smaller than 16px */
+  input[type="password"],input[type="text"],textarea{font-size:16px}
+  /* comfortable thumb targets */
+  .thread-toggle{min-height:48px}
+  button.btn{padding:.7rem 1.15rem}
+  /* stack the name field and post button instead of cramming them side by side */
+  .thread-form{max-width:none}
+  .thread-form .row2{flex-direction:column;align-items:stretch;gap:.5rem}
+  .thread-form .row2 input{max-width:none;width:100%}
+  .bar{padding:.5rem .95rem;gap:.5rem}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.bar,.thread-toggle,.thread-form{display:none!important}.thread-body{display:block!important}}
