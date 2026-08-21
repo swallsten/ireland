@@ -118,8 +118,27 @@ a.gday:hover{background:var(--surface-2)}
 a.gday:hover .t{text-decoration-color:var(--accent)}
 a.gday:active{background:var(--rule-soft)}
 a.gday:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+/* reference strip: jump links to the sections that follow the week */
+.refnav{
+  display:flex;flex-wrap:wrap;gap:2px;
+  margin:0 0 var(--s5);background:var(--rule-soft);border:1px solid var(--rule);
+}
+.glance + .refnav{margin-top:calc(-1 * var(--s5) + 2px)}
+.refnav a{
+  flex:1 1 auto;min-width:6rem;min-height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface);padding:.55rem .7rem;
+  font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;
+  -webkit-tap-highlight-color:transparent;transition:background .12s ease,color .12s ease;
+}
+.refnav a:hover{background:var(--surface-2);color:var(--accent-ink)}
+.refnav a:active{background:var(--rule-soft)}
+.refnav a:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+@media print{.refnav{display:none}}
+
 /* keep the sticky top bar from covering the heading you jump to */
-section.day{scroll-margin-top:calc(var(--stick, 4.5rem) + .7rem)}
+section.day,section.sec{scroll-margin-top:calc(var(--stick, 4.5rem) + .7rem)}
 html{scroll-behavior:smooth}
 
 /* ---- load meter ---- */
