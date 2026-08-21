@@ -366,6 +366,15 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 .bar .dot.live{background:var(--accent)}
 .bar .dot.down{background:var(--road)}
 
+.updated{
+  position:sticky;top:0;z-index:29;
+  display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;
+  padding:.6rem 1.35rem;background:var(--accent-soft);
+  border-bottom:1px solid var(--rule);
+  font-size:.85rem;color:var(--accent-ink);
+}
+.updated button.ghost{margin-left:auto}
+
 /* ============ shell: comment threads ============ */
 .thread{margin:1.4rem 0 0;border-top:1px solid var(--rule)}
 .thread-toggle{
@@ -418,7 +427,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   .bar{padding:.5rem .95rem;gap:.5rem}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media print{.bar,.thread-toggle,.thread-form{display:none!important}.thread-body{display:block!important}}
+@media print{.bar,.updated,.thread-toggle,.thread-form{display:none!important}.thread-body{display:block!important}}
 </style>
 </head>
 <body>
@@ -444,6 +453,10 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     <button class="ghost" id="rename" type="button">Change name</button>
     <button class="ghost" id="lock" type="button">Lock</button>
   </div>
+  <div class="updated" id="updated" hidden>
+    <span>This itinerary has been updated.</span>
+    <button class="ghost" id="reload-new" type="button">Load the new version</button>
+  </div>
   <div id="doc"></div>
 </div>
 
@@ -452,6 +465,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   "use strict";
 
   var CACHE_KEY = "ireland.doc.v1";
+  var FP_KEY    = "ireland.fp.v1";   // fingerprint of the payload the cache came from
   var NAME_KEY  = "ireland.name.v1";
   var POLL_MS   = 60000;
 
@@ -459,6 +473,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   var threads = {};      // key -> {listEl, countEl}
   var me = "";
   var pollTimer = null;
+  var pendingFp = null;  // iv of the payload most recently decrypted
 
   // ---------- tiny helpers ----------
   function $(id) { return document.getElementById(id); }
@@ -488,6 +503,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     var res = await fetch("payload.json", { cache: "no-store" });
     if (!res.ok) throw new Error("Could not load payload.json");
     var p = await res.json();
+    pendingFp = p.iv || null;
     var baseKey = await crypto.subtle.importKey(
       "raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]
     );
@@ -508,7 +524,10 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     $("gate").hidden = true;
     $("gate").style.display = "none";
     $("app").hidden = false;
-    if (cacheIt) { try { store(CACHE_KEY, JSON.stringify(data)); } catch (e) {} }
+    if (cacheIt) {
+      try { store(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+      if (pendingFp) store(FP_KEY, pendingFp);
+    }
     me = recall(NAME_KEY) || "";
     buildThreads();
     if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
@@ -536,14 +555,36 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   });
 
   // try the cached copy first, so a reload with no signal still works
+  // The cached copy is shown instantly so the page still opens with no signal.
+  // If we are online and payload.json has changed since that copy was made,
+  // offer the new one rather than silently showing a stale itinerary.
+  async function checkForUpdate() {
+    var known = recall(FP_KEY);
+    if (!known) return;
+    try {
+      var res = await fetch("payload.json", { cache: "no-store" });
+      if (!res.ok) return;
+      var p = await res.json();
+      if (p && p.iv && p.iv !== known) $("updated").hidden = false;
+    } catch (e) { /* offline: keep showing the cached copy */ }
+  }
+
   (function tryCache() {
     var raw = recall(CACHE_KEY);
     if (!raw) return;
-    try { boot(JSON.parse(raw), false); } catch (e) { store(CACHE_KEY, null); }
+    try { boot(JSON.parse(raw), false); checkForUpdate(); }
+    catch (e) { store(CACHE_KEY, null); store(FP_KEY, null); }
   })();
+
+  $("reload-new").addEventListener("click", function () {
+    store(CACHE_KEY, null);
+    store(FP_KEY, null);
+    location.reload();
+  });
 
   $("lock").addEventListener("click", function () {
     store(CACHE_KEY, null);
+    store(FP_KEY, null);
     location.reload();
   });
 
