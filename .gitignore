@@ -1,0 +1,5 @@
+# Never commit these. The whole point of the encryption is that the
+# plain itinerary and your Supabase keys stay off GitHub.
+source/
+*.pdf
+.DS_Store

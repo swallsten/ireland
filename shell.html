@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Ballyconneely to Spiddal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%A5%BE</text></svg>">
+<style>
+/*__ITINERARY_CSS__*/
+
+/* ============ shell: gate ============ */
+.gate{
+  min-height:100svh;display:flex;align-items:center;justify-content:center;
+  padding:1.5rem;background:var(--ground);
+}
+.gate-card{
+  width:100%;max-width:23rem;background:var(--surface);
+  border:1px solid var(--rule);padding:1.9rem 1.7rem 1.7rem;
+}
+.gate-card .eyebrow{margin-bottom:.55rem}
+.gate-card h1{font-size:clamp(1.9rem,7vw,2.4rem);margin-bottom:.7rem}
+.gate-card p{font-size:.92rem;color:var(--ink-2);margin-bottom:1.2rem}
+.gate-field{display:flex;flex-direction:column;gap:.5rem}
+label.lbl-t{
+  font-family:var(--f-mono);font-size:.65rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);
+}
+input[type="password"],input[type="text"],textarea{
+  font-family:var(--f-body);font-size:.95rem;color:var(--ink);
+  background:var(--ground);border:1px solid var(--rule);
+  padding:.6rem .7rem;width:100%;border-radius:0;
+}
+textarea{resize:vertical;min-height:4.5rem;line-height:1.5}
+input:focus-visible,textarea:focus-visible,button:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+button.btn{
+  font-family:var(--f-body);font-size:.9rem;font-weight:600;cursor:pointer;
+  background:var(--accent);color:var(--ground);border:1px solid var(--accent);
+  padding:.6rem 1.1rem;border-radius:0;
+}
+:root[data-theme="dark"] button.btn,
+:root:not([data-theme="light"]) button.btn{color:var(--ground)}
+button.btn:hover{opacity:.88}
+button.btn[disabled]{opacity:.5;cursor:progress}
+button.ghost{
+  font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);color:var(--ink-2);
+  padding:.4rem .7rem;cursor:pointer;border-radius:0;
+}
+button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
+.gate-err{
+  color:var(--road-ink);font-size:.85rem;margin:.7rem 0 0;min-height:1.2em;
+}
+
+/* ============ shell: top bar ============ */
+.bar{
+  position:sticky;top:0;z-index:30;background:var(--ground);
+  border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  padding:.55rem 1.35rem;
+}
+.bar .who{
+  font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;
+  color:var(--muted);margin-right:auto;
+}
+.bar .who b{color:var(--accent-ink);font-weight:600}
+.bar .dot{
+  display:inline-block;width:.4rem;height:.4rem;border-radius:50%;
+  background:var(--muted);margin-right:.4rem;vertical-align:.05em;
+}
+.bar .dot.live{background:var(--accent)}
+.bar .dot.down{background:var(--road)}
+
+/* ============ shell: comment threads ============ */
+.thread{margin:1.4rem 0 0;border-top:1px solid var(--rule)}
+.thread-toggle{
+  display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;
+  background:none;border:0;cursor:pointer;padding:.75rem 0;
+  font-family:var(--f-mono);font-size:.7rem;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);
+}
+.thread-toggle:hover{color:var(--accent-ink)}
+.thread-toggle .chev{
+  display:inline-block;transition:transform .15s ease;font-size:.8rem;color:var(--muted);
+}
+.thread[open-thread] .thread-toggle .chev{transform:rotate(90deg)}
+.thread-toggle .count{
+  font-family:var(--f-mono);font-size:.68rem;padding:.08rem .4rem;
+  background:var(--accent-soft);color:var(--accent-ink);border-radius:2px;
+}
+.thread-toggle .count.zero{background:var(--surface-2);color:var(--muted)}
+.thread-body{display:none;padding:0 0 1.1rem}
+.thread[open-thread] .thread-body{display:block}
+.notes{list-style:none;margin:0 0 1rem;padding:0;display:flex;flex-direction:column;gap:.75rem}
+.note-item{
+  background:var(--surface);border-left:2px solid var(--accent);
+  padding:.6rem .8rem;
+}
+.note-item .meta{
+  font-family:var(--f-mono);font-size:.66rem;letter-spacing:.06em;
+  color:var(--muted);margin-bottom:.25rem;
+}
+.note-item .meta b{color:var(--accent-ink);font-weight:600;letter-spacing:.04em}
+.note-item p{margin:0;font-size:.93rem;color:var(--ink-2);white-space:pre-wrap}
+.thread-form{display:flex;flex-direction:column;gap:.55rem;max-width:34rem}
+.thread-form .row2{display:flex;gap:.55rem;align-items:flex-end;flex-wrap:wrap}
+.thread-form .row2 input{max-width:12rem}
+.thread-form .say{font-size:.8rem;color:var(--muted);margin:0}
+.thread-off{
+  font-size:.85rem;color:var(--muted);background:var(--surface);
+  border-left:2px solid var(--rule);padding:.6rem .8rem;margin:0 0 .8rem;
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{.bar,.thread-toggle,.thread-form{display:none!important}.thread-body{display:block!important}}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <p class="eyebrow">1 &ndash; 8 September 2026</p>
+    <h1>Ballyconneely<br><em>to</em> Spiddal</h1>
+    <p>This page is encrypted. Enter the passphrase Scott sent you.</p>
+    <form class="gate-field" id="gate-form">
+      <label class="lbl-t" for="pw">Passphrase</label>
+      <input type="password" id="pw" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+      <button class="btn" type="submit" id="unlock">Unlock</button>
+    </form>
+    <p class="gate-err" id="gate-err" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <div class="bar">
+    <span class="who" id="who"><span class="dot" id="dot"></span><span id="who-txt">Loading notes</span></span>
+    <button class="ghost" id="refresh" type="button">Refresh notes</button>
+    <button class="ghost" id="rename" type="button">Change name</button>
+    <button class="ghost" id="lock" type="button">Lock</button>
+  </div>
+  <div id="doc"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CACHE_KEY = "ireland.doc.v1";
+  var NAME_KEY  = "ireland.name.v1";
+  var POLL_MS   = 60000;
+
+  var cfg = { supabaseUrl: "", supabaseAnonKey: "" };
+  var threads = {};      // key -> {listEl, countEl}
+  var me = "";
+  var pollTimer = null;
+
+  // ---------- tiny helpers ----------
+  function $(id) { return document.getElementById(id); }
+  function store(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+  function recall(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function b64ToBytes(s) {
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function slug(s) {
+    return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  // ---------- unlock ----------
+  async function decrypt(passphrase) {
+    var res = await fetch("payload.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("Could not load payload.json");
+    var p = await res.json();
+    var baseKey = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]
+    );
+    var key = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: b64ToBytes(p.salt), iterations: p.iterations, hash: "SHA-256" },
+      baseKey, { name: "AES-GCM", length: 256 }, false, ["decrypt"]
+    );
+    var clear = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: b64ToBytes(p.iv) }, key, b64ToBytes(p.data)
+    );
+    return JSON.parse(new TextDecoder().decode(clear));
+  }
+
+  function boot(data, cacheIt) {
+    cfg.supabaseUrl = data.supabaseUrl || "";
+    cfg.supabaseAnonKey = data.supabaseAnonKey || "";
+    $("doc").innerHTML = data.html;
+    $("gate").hidden = true;
+    $("gate").style.display = "none";
+    $("app").hidden = false;
+    if (cacheIt) { try { store(CACHE_KEY, JSON.stringify(data)); } catch (e) {} }
+    me = recall(NAME_KEY) || "";
+    buildThreads();
+    if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
+      loadNotes();
+      pollTimer = setInterval(function () {
+        if (document.visibilityState === "visible") loadNotes(true);
+      }, POLL_MS);
+    } else {
+      setStatus("down", "Notes not configured yet");
+    }
+  }
+
+  $("gate-form").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    var btn = $("unlock"), err = $("gate-err");
+    btn.disabled = true; btn.textContent = "Unlocking"; err.textContent = "";
+    try {
+      var data = await decrypt($("pw").value.trim());
+      boot(data, true);
+    } catch (e) {
+      err.textContent = "That passphrase does not open this page.";
+      btn.disabled = false; btn.textContent = "Unlock";
+      $("pw").select();
+    }
+  });
+
+  // try the cached copy first, so a reload with no signal still works
+  (function tryCache() {
+    var raw = recall(CACHE_KEY);
+    if (!raw) return;
+    try { boot(JSON.parse(raw), false); } catch (e) { store(CACHE_KEY, null); }
+  })();
+
+  $("lock").addEventListener("click", function () {
+    store(CACHE_KEY, null);
+    location.reload();
+  });
+
+  // ---------- threads ----------
+  function threadKeyFor(section) {
+    var m = section.querySelector(".dayhead .meta > span");
+    if (m) return "day-" + slug(m.textContent);
+    var h = section.querySelector("h2");
+    if (h) return "sec-" + slug(h.textContent);
+    return null;
+  }
+
+  function buildThreads() {
+    var doc = $("doc");
+    var targets = [];
+
+    // a general thread up top, before the first day
+    var first = doc.querySelector("section.day");
+    if (first) {
+      var gen = document.createElement("section");
+      gen.className = "sec";
+      gen.setAttribute("data-general", "");
+      gen.innerHTML = '<h2 style="font-size:1.4rem;margin:0 0 .3rem">Notes for the group</h2>' +
+        '<p class="sub" style="margin:0 0 .2rem">Anything that is not about one particular day. ' +
+        'Every section below has its own thread too.</p>';
+      first.parentNode.insertBefore(gen, first);
+      targets.push(["general", gen]);
+    }
+
+    Array.prototype.forEach.call(doc.querySelectorAll("section.day, section.sec:not([data-general])"), function (sec) {
+      if (sec.querySelector(".thread")) return;
+      var key = threadKeyFor(sec);
+      if (key) targets.push([key, sec]);
+    });
+
+    targets.forEach(function (pair) {
+      var key = pair[0], sec = pair[1];
+      var label = key === "general" ? "Group notes" : "Notes on this section";
+      var wrap = document.createElement("div");
+      wrap.className = "thread";
+      wrap.setAttribute("data-key", key);
+      wrap.innerHTML =
+        '<button class="thread-toggle" type="button" aria-expanded="false">' +
+          '<span class="chev">&rsaquo;</span><span>' + label + '</span>' +
+          '<span class="count zero">0</span></button>' +
+        '<div class="thread-body">' +
+          '<ul class="notes"></ul>' +
+          (cfg.supabaseUrl && cfg.supabaseAnonKey
+            ? '<form class="thread-form">' +
+                '<textarea required maxlength="2000" placeholder="Add a note the other four will see"></textarea>' +
+                '<div class="row2">' +
+                  '<input type="text" class="author" maxlength="40" placeholder="Your name" required>' +
+                  '<button class="btn" type="submit">Post note</button>' +
+                '</div>' +
+                '<p class="say"></p>' +
+              '</form>'
+            : '<p class="thread-off">Notes are not switched on yet. See step 2 of the README.</p>') +
+        '</div>';
+      sec.appendChild(wrap);
+
+      var toggle = wrap.querySelector(".thread-toggle");
+      toggle.addEventListener("click", function () {
+        var open = wrap.hasAttribute("open-thread");
+        if (open) { wrap.removeAttribute("open-thread"); } else { wrap.setAttribute("open-thread", ""); }
+        toggle.setAttribute("aria-expanded", String(!open));
+      });
+
+      var form = wrap.querySelector(".thread-form");
+      if (form) {
+        var authorInput = form.querySelector(".author");
+        if (me) authorInput.value = me;
+        form.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          postNote(key, form);
+        });
+      }
+
+      threads[key] = {
+        list: wrap.querySelector(".notes"),
+        count: wrap.querySelector(".count"),
+        wrap: wrap
+      };
+    });
+  }
+
+  // ---------- supabase ----------
+  function headers(extra) {
+    var h = {
+      apikey: cfg.supabaseAnonKey,
+      Authorization: "Bearer " + cfg.supabaseAnonKey
+    };
+    for (var k in (extra || {})) h[k] = extra[k];
+    return h;
+  }
+
+  function setStatus(state, text) {
+    $("dot").className = "dot " + (state || "");
+    $("who-txt").textContent = text;
+  }
+
+  function loadNotes(quiet) {
+    if (!quiet) setStatus("", "Loading notes");
+    fetch(cfg.supabaseUrl + "/rest/v1/comments?select=id,created_at,author,section,body&order=created_at.asc", {
+      headers: headers(), cache: "no-store"
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (rows) {
+        render(rows);
+        var n = rows.length;
+        var tally = n + (n === 1 ? " note" : " notes");
+        if (me) {
+          $("who").innerHTML = '<span class="dot live"></span>You are <b>' + esc(me) + '</b> &middot; ' + tally;
+        } else {
+          $("who").innerHTML = '<span class="dot live"></span>' + tally + ' &middot; open a section to read them';
+        }
+      })
+      .catch(function () {
+        setStatus("down", "Cannot reach the notes right now");
+      });
+  }
+
+  function render(rows) {
+    Object.keys(threads).forEach(function (k) {
+      threads[k].list.innerHTML = "";
+      threads[k].count.textContent = "0";
+      threads[k].count.classList.add("zero");
+    });
+    rows.forEach(function (row) {
+      var t = threads[row.section] || threads.general;
+      if (!t) return;
+      var li = document.createElement("li");
+      li.className = "note-item";
+      li.innerHTML = '<div class="meta"><b>' + esc(row.author) + '</b> · ' + esc(when(row.created_at)) + '</div>' +
+                     '<p>' + esc(row.body) + '</p>';
+      t.list.appendChild(li);
+      var c = parseInt(t.count.textContent, 10) + 1;
+      t.count.textContent = String(c);
+      t.count.classList.remove("zero");
+    });
+  }
+
+  function postNote(key, form) {
+    var body = form.querySelector("textarea").value.trim();
+    var author = form.querySelector(".author").value.trim();
+    var say = form.querySelector(".say");
+    var btn = form.querySelector("button");
+    if (!body || !author) return;
+    me = author; store(NAME_KEY, author);
+    btn.disabled = true; say.textContent = "Posting";
+    fetch(cfg.supabaseUrl + "/rest/v1/comments", {
+      method: "POST",
+      headers: headers({ "Content-Type": "application/json", Prefer: "return=minimal" }),
+      body: JSON.stringify({ author: author, section: key, body: body })
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        form.querySelector("textarea").value = "";
+        say.textContent = "Posted";
+        setTimeout(function () { say.textContent = ""; }, 2500);
+        loadNotes(true);
+      })
+      .catch(function () {
+        say.textContent = "That did not send. Check your signal and try again.";
+      })
+      .finally(function () { btn.disabled = false; });
+  }
+
+  $("refresh").addEventListener("click", function () { loadNotes(); });
+  $("rename").addEventListener("click", function () {
+    var n = prompt("What name should the others see?", me || "");
+    if (n === null) return;
+    n = n.trim().slice(0, 40);
+    if (!n) return;
+    me = n; store(NAME_KEY, n);
+    Array.prototype.forEach.call(document.querySelectorAll(".thread-form .author"), function (i) { i.value = n; });
+    loadNotes(true);
+  });
+})();
+</script>
+</body>
+</html>
