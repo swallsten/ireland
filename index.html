@@ -119,7 +119,7 @@ a.gday:hover .t{text-decoration-color:var(--accent)}
 a.gday:active{background:var(--rule-soft)}
 a.gday:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 /* keep the sticky top bar from covering the heading you jump to */
-section.day{scroll-margin-top:4.5rem}
+section.day{scroll-margin-top:calc(var(--stick, 4.5rem) + .7rem)}
 html{scroll-behavior:smooth}
 
 /* ---- load meter ---- */
@@ -261,7 +261,6 @@ ul.plain li b{color:var(--ink);font-weight:600}
   .glance{grid-template-columns:repeat(2,1fr)}
   a.gday{min-height:60px;padding:.8rem .7rem .85rem;justify-content:center}
   a.gday .t{font-size:1.02rem}
-  section.day{scroll-margin-top:6rem}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}
   html{scroll-behavior:auto}}
@@ -348,8 +347,9 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 }
 
 /* ============ shell: top bar ============ */
+.topstack{position:sticky;top:0;z-index:30}
 .bar{
-  position:sticky;top:0;z-index:30;background:var(--ground);
+  background:var(--ground);
   border-bottom:1px solid var(--rule);
   display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
   padding:.55rem 1.35rem;
@@ -367,7 +367,6 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 .bar .dot.down{background:var(--road)}
 
 .updated{
-  position:sticky;top:0;z-index:29;
   display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;
   padding:.6rem 1.35rem;background:var(--accent-soft);
   border-bottom:1px solid var(--rule);
@@ -447,6 +446,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 </div>
 
 <div id="app" hidden>
+  <div class="topstack">
   <div class="bar">
     <span class="who" id="who"><span class="dot" id="dot"></span><span id="who-txt">Loading notes</span></span>
     <button class="ghost" id="refresh" type="button">Refresh notes</button>
@@ -456,6 +456,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   <div class="updated" id="updated" hidden>
     <span>This itinerary has been updated.</span>
     <button class="ghost" id="reload-new" type="button">Load the new version</button>
+  </div>
   </div>
   <div id="doc"></div>
 </div>
@@ -568,6 +569,20 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
       if (p && p.iv && p.iv !== known) $("updated").hidden = false;
     } catch (e) { /* offline: keep showing the cached copy */ }
   }
+
+  // The sticky header changes height: it wraps on narrow screens and grows
+  // when the update banner appears. Publish its height so section anchors
+  // can offset by the right amount instead of a guess.
+  (function stickHeight() {
+    var stack = document.querySelector(".topstack");
+    if (!stack) return;
+    var sync = function () {
+      document.documentElement.style.setProperty("--stick", stack.offsetHeight + "px");
+    };
+    sync();
+    if (window.ResizeObserver) new ResizeObserver(sync).observe(stack);
+    window.addEventListener("resize", sync);
+  })();
 
   (function tryCache() {
     var raw = recall(CACHE_KEY);
