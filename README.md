@@ -134,8 +134,8 @@ python3 build.py --passphrase "your new passphrase"
 git add index.html payload.json && git commit -m "New passphrase" && git push
 ```
 
-Anyone already on the page keeps working until they hit **Lock** or clear their
-browser data, then they need the new one.
+Anyone already on the page keeps working until they hit **Log out** or clear
+their browser data, then they need the new one.
 
 To make it permanent, put it in `source/config.json` under `"passphrase"` (see
 Step 2). That file is gitignored, so the passphrase never reaches GitHub.
@@ -175,7 +175,7 @@ leave those alone.
   wipe the thread. To remove something, delete the row in Supabase under
   **Table Editor → comments**.
 - Once unlocked, the decrypted page is cached in the browser, so it still opens with
-  no signal. Notes need a connection. **Lock** clears that cache.
+  no signal. Notes need a connection. **Log out** clears that cache.
 
 ---
 
