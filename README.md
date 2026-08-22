@@ -60,7 +60,7 @@ editable itinerary.
 2. Drop the contents of this folder into it and push:
 
    ```bash
-   cd ireland-itinerary
+   cd <this folder>
    git init
    git add .
    git commit -m "Ireland itinerary"
@@ -75,8 +75,8 @@ editable itinerary.
    **Deploy from a branch**, branch `main`, folder `/ (root)`. Save.
 4. Wait about a minute. Your URL will be
    `https://YOURNAME.github.io/ireland-2026/`.
-5. Open it. It should ask for a passphrase. The current one is **`dogsbay`**.
-   Changing it is Step 3.
+5. Open it. It should ask for the passphrase, which lives in `source/config.json`
+   under `"passphrase"`. Changing it is Step 3.
 
 At this point the page works and the notes are switched off.
 
