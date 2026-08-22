@@ -436,6 +436,31 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 }
 .updated button.ghost{margin-left:auto}
 
+/* ---- a day that is behind you ---- */
+.day.past .intro,
+.day.past .rows,
+.day.past .tally,
+.day.past .note,
+.day.past .thread{display:none}
+.day.past{margin-bottom:1.1rem}
+.day.past .dayhead h2{font-size:1.35rem;margin-bottom:.2rem;color:var(--muted)}
+.day.past .dayhead .meta{opacity:.7}
+.day-toggle{
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:none;border:0;cursor:pointer;padding:.5rem 0 0;min-height:44px;
+  font-family:var(--f-mono);font-size:.68rem;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);
+  -webkit-tap-highlight-color:transparent;
+}
+.day-toggle:hover{color:var(--accent-ink)}
+.day-toggle .chev{display:inline-block;transition:transform .15s ease}
+.day:not(.past) .day-toggle .chev{transform:rotate(90deg)}
+.today-tag{
+  font-family:var(--f-mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--accent-soft);color:var(--accent-ink);padding:.1rem .45rem;border-radius:2px;
+}
+@media print{.day.past .rows,.day.past .note,.day.past .tally{display:block}.day-toggle{display:none}}
+
 /* ============ shell: comment threads ============ */
 .thread{margin:1.4rem 0 0;border-top:1px solid var(--rule)}
 .thread-toggle{
@@ -597,6 +622,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     }
     me = recall(NAME_KEY) || "";
     buildThreads();
+    foldPastDays();
     if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
       loadNotes();
       pollTimer = setInterval(function () {
@@ -712,6 +738,54 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     return null;
   }
 
+  // ---------- days that are behind you ----------
+  // A day whose date is earlier than today folds down to its header, so the
+  // week ahead is not buried under the week you already had. Today and
+  // everything after it stay open. Dates come from data-date on the section,
+  // never from the heading text, which the notes threads are keyed on.
+  function todayISO() {
+    var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+    return d.getFullYear() + "-" + (m < 10 ? "0" + m : m) + "-" + (day < 10 ? "0" + day : day);
+  }
+
+  function foldPastDays() {
+    var now = todayISO();
+    Array.prototype.forEach.call($("doc").querySelectorAll("section.day[data-date]"), function (sec) {
+      var d = sec.getAttribute("data-date");
+      if (!d) return;
+
+      if (d === now) {
+        sec.classList.add("today");
+        var meta = sec.querySelector(".dayhead .meta");
+        if (meta && !meta.querySelector(".today-tag")) {
+          var tag = document.createElement("span");   // appended, so the first
+          tag.className = "today-tag";                // span still keys the thread
+          tag.textContent = "today";
+          meta.appendChild(tag);
+        }
+        return;
+      }
+      if (d >= now) return;
+
+      sec.classList.add("past");
+      var head = sec.querySelector(".dayhead");
+      if (!head || head.querySelector(".day-toggle")) return;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "day-toggle";
+      var label = function () {
+        btn.innerHTML = '<span class="chev">&rsaquo;</span>' +
+          (sec.classList.contains("past") ? "Done, tap to reopen" : "Fold this day away");
+      };
+      btn.addEventListener("click", function () {
+        sec.classList.toggle("past");
+        label();
+      });
+      label();
+      head.appendChild(btn);
+    });
+  }
+
   function buildThreads() {
     var doc = $("doc");
     var targets = [];
@@ -725,7 +799,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
       gen.setAttribute("data-general", "");
       gen.innerHTML = '<h2 style="font-size:1.4rem;margin:0 0 .3rem">Notes for the group</h2>' +
         '<p class="sub" style="margin:0 0 .2rem">Anything not about one particular day. ' +
-        'Every section below has its own thread too.</p>';
+        'Every section below has its own thread.</p>';
       first.parentNode.insertBefore(gen, first);
       targets.push(["general", gen]);
     }
