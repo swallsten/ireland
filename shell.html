@@ -181,6 +181,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   var CACHE_KEY = "ireland.doc.v1";
   var FP_KEY    = "ireland.fp.v1";   // fingerprint of the payload the cache came from
   var NAME_KEY  = "ireland.name.v1";
+  var PASS_KEY  = "ireland.pass.v1";  // remembered so an update does not send you back to the gate
   var POLL_MS   = 60000;
 
   var cfg = { supabaseUrl: "", supabaseAnonKey: "" };
@@ -188,6 +189,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   var me = "";
   var pollTimer = null;
   var pendingFp = null;  // iv of the payload most recently decrypted
+  var lastPass  = null;  // the passphrase that last worked, for silent re-decrypts
 
   // ---------- tiny helpers ----------
   function $(id) { return document.getElementById(id); }
@@ -218,6 +220,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     if (!res.ok) throw new Error("Could not load payload.json");
     var p = await res.json();
     pendingFp = p.iv || null;
+    lastPass = passphrase;
     var baseKey = await crypto.subtle.importKey(
       "raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]
     );
@@ -241,6 +244,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
     if (cacheIt) {
       try { store(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
       if (pendingFp) store(FP_KEY, pendingFp);
+      if (lastPass) store(PASS_KEY, lastPass);
     }
     me = recall(NAME_KEY) || "";
     buildThreads();
@@ -279,8 +283,34 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
       var res = await fetch("payload.json", { cache: "no-store" });
       if (!res.ok) return;
       var p = await res.json();
-      if (p && p.iv && p.iv !== known) $("updated").hidden = false;
+      if (!p || !p.iv || p.iv === known) return;
+
+      // The payload moved on. If this device remembers the passphrase, fetch
+      // the new version and swap it in, rather than sending someone back to
+      // the gate over a change they did not make.
+      var saved = recall(PASS_KEY);
+      if (saved) {
+        try {
+          boot(await decrypt(saved), true);
+          flashUpdated();
+          return;
+        } catch (e) { store(PASS_KEY, null); }
+      }
+      $("updated").hidden = false;
     } catch (e) { /* offline: keep showing the cached copy */ }
+  }
+
+  // Brief confirmation, so the page never changes under you in silence.
+  function flashUpdated() {
+    var bar = $("updated"), label = bar.querySelector("span"), btn = $("reload-new");
+    label.textContent = "Updated to the newest version.";
+    btn.hidden = true;
+    bar.hidden = false;
+    setTimeout(function () {
+      bar.hidden = true;
+      btn.hidden = false;
+      label.textContent = "This itinerary has been updated.";
+    }, 12000);
   }
 
   // The sticky header changes height: it wraps on narrow screens and grows
@@ -299,9 +329,16 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
 
   (function tryCache() {
     var raw = recall(CACHE_KEY);
-    if (!raw) return;
-    try { boot(JSON.parse(raw), false); checkForUpdate(); }
-    catch (e) { store(CACHE_KEY, null); store(FP_KEY, null); }
+    if (raw) {
+      try { boot(JSON.parse(raw), false); checkForUpdate(); return; }
+      catch (e) { store(CACHE_KEY, null); store(FP_KEY, null); }
+    }
+    // No cached copy, but this device may still know the passphrase.
+    var saved = recall(PASS_KEY);
+    if (saved) {
+      decrypt(saved).then(function (data) { boot(data, true); })
+                    .catch(function () { store(PASS_KEY, null); });
+    }
   })();
 
   $("reload-new").addEventListener("click", function () {
@@ -313,6 +350,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   $("lock").addEventListener("click", function () {
     store(CACHE_KEY, null);
     store(FP_KEY, null);
+    store(PASS_KEY, null);
     location.reload();
   });
 
@@ -328,6 +366,7 @@ button.ghost:hover{border-color:var(--accent);color:var(--accent-ink)}
   function buildThreads() {
     var doc = $("doc");
     var targets = [];
+    threads = {};   // a re-boot replaces #doc, so drop references to the old nodes
 
     // a general thread up top, before the first day
     var first = doc.querySelector("section.day");
