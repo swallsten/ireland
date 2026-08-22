@@ -123,6 +123,13 @@ a.gday:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .what h3 a:hover{text-decoration-color:var(--accent);color:var(--accent-ink)}
 .warn-note{background:var(--road-soft);border-left:2px solid var(--road);padding:.55rem .75rem;
   font-size:.88rem;color:var(--ink-2);margin:.6rem 0 0}
+.mast-title{position:relative}
+.routemap{
+  position:absolute;right:0;bottom:.1rem;
+  width:min(44%,230px);height:auto;pointer-events:none;opacity:.9;
+}
+@media (max-width:620px){.routemap{width:min(48%,152px)}}
+@media print{.routemap{opacity:1}}
 .mapline{margin:.9rem 0 0;font-size:.92rem}
 .mapline a{font-weight:600}
 .mapline span{color:var(--muted);font-size:.86rem;display:block;margin-top:.15rem}
